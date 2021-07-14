@@ -1,4 +1,4 @@
-;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+;;; $$$DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
@@ -6,8 +6,8 @@
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
-(setq user-full-name "John Doe"
-      user-mail-address "john@doe.com")
+(setq user-full-name "Sean Underwood"
+      user-mail-address "s_underwood@tcdi.com")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
@@ -21,20 +21,28 @@
 ;; font string. You generally only need these two:
 ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
 ;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
+(setq doom-font (font-spec :family "JetBrains Mono"
+                           :size 14))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-wilmersdorf)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
+(after! org
+  (map! :map org-mode-map
+        :n "M-j" #'org-metadown
+        :n "M-k" #'org-metaup))
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 
+;; projectile setup
+(setq projectile-project-search-path '("~/dev" "~/cicayda" "~/data"))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
@@ -52,3 +60,15 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+(after! smartparens
+  (sp-local-pair '(python-mode) "f\"" "\"")
+  (sp-local-pair '(python-mode) "f\'" "'"))
+
+;; Silence errors from auto-invoked formatter
+(defun my-format-all-silent-a (fn &rest args)
+  (save-window-excursion
+    (ignore-errors
+      (unless (and (string-match-p "^save.*buffer" (symbol-name this-command))
+                   current-prefix-arg)
+        (apply fn args)))))
+(advice-add #'format-all-buffer :around #'my-format-all-silent-a)
